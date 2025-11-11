@@ -27,7 +27,7 @@ def pulse_creation(tref_us:float, pulse_us:float):
     ref_us=tref_us/2
     N_pulse=ref_us/pulse_us
     if ref_us%pulse_us!=0:
-        raise ValueError("Tref is not cleanly divisible by pulse length, fix it")
+        raise ValueError("Tref/2 is not cleanly divisible by pulse length, fix it")
     N_pulse=int(N_pulse)
     
     pb_start_programming(PULSE_PROGRAM)
