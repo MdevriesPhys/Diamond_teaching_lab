@@ -2,11 +2,12 @@
 import sys, traceback
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QTabWidget, QWidget, QVBoxLayout, QHBoxLayout,
-    QLabel, QTextEdit, QPushButton, QGroupBox, QFormLayout, QDoubleSpinBox, QSpinBox
+    QLabel, QTextEdit, QPushButton, QGroupBox, QFormLayout, QDoubleSpinBox, QSpinBox, QFileDialog
 )
 from PyQt6.QtCore import Qt, QObject, pyqtSignal, QThread
-
 from experiments.mpl_canvas import MplCanvas
+import numpy as np
+import csv
 
 # Experiment runners (signature: run(ax, emit, **params))
 # try:
@@ -115,10 +116,14 @@ class ExperimentTab(QWidget):
 
         # Try to infer data format (x, y)
         try:
+            
             if isinstance(self.last_result, dict):
+                keys = list(self.last_result.keys())
                 # Handle dict-like results (e.g., {'x': [...], 'y': [...]})
-                x = np.array(self.last_result.get("x", []))
-                y = np.array(self.last_result.get("y", []))
+                x = np.array(self.last_result.get(keys[0], []))
+                y = np.array(self.last_result.get(keys[1], []))
+                print(x)
+                print(y)
             elif isinstance(self.last_result, (list, tuple)) and len(self.last_result) == 2:
                 x, y = map(np.array, self.last_result)
             else:
@@ -127,7 +132,10 @@ class ExperimentTab(QWidget):
 
             with open(path, "w", newline="") as f:
                 writer = csv.writer(f)
-                writer.writerow(["x", "y"])
+                try:
+                    writer.writerow(keys)
+                except:
+                    writer.writerow("x","y")
                 for xi, yi in zip(x, y):
                     writer.writerow([xi, yi])
 

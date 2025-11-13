@@ -46,8 +46,8 @@ def pulse_creation(tref_us:float, pulse_us:float):
     if a==-1:
         pb_inst_pbonly(0, BRANCH,0, pulse_ns)
     else:
-        pb_init_pbonly(CH_LASER,CONTINUE,0,pulse_ns)
-        pb_init_pbonly(0,BRANCH,CONTINUE,0,pulse_ns)
+        pb_inst_pbonly(CH_LASER,CONTINUE,0,pulse_ns)
+        pb_inst_pbonly(0,BRANCH,0,pulse_ns)
     pb_stop_programming()
 
 
@@ -66,35 +66,43 @@ def run(ax, emit, f_start_GHz=2.86, f_stop_GHz=2.90,dbm=-35.0, points=61,tref_us
     ax.set_ylabel("Contrast (arb)")
     ax.grid(True)
     (line,) = ax.plot([], [], "o")
+    try:
+        pb_stop()
+        pb_reset()
+        pulse_creation(float(tref_us),float(pulse_us))
+        pb_start()
 
-    pb_stop()
-    pb_reset()
-    pulse_creation(float(tref_us),float(pulse_us))
-    pb_start()
+        loop_count=0
+        fvals=[]
+        Rvals=[]
+        while loop_count<loops:
 
-    loop_count=0
-    fvals=[]
-    Rvals=[]
-    while loop_count<loops:
+            for i, fi in enumerate(f):
+                if QThread.currentThread().isInterruptionRequested():
+                    emit(line="Interrupted by user.")
+                    break
+                
+                mw.set_freq(1,fi)
+                mw.rf_on(1)
+                time.sleep(wait_s)
 
-        for i, fi in enumerate(f):
-            if QThread.currentThread().isInterruptionRequested():
-                emit(line="Interrupted by user.")
-                break
-            
-            mw.set_freq(1,fi)
-            mw.rf_on(1)
-            time.sleep(wait_s)
+                R=sr830_read_R(li)
+                Rvals.append(R)
+                fvals.append(fi)
 
-            R=sr830_read_R(li)
-            Rvals.append(R)
-            fvals.append(fi)
-
-            line.set_data(fvals,Rvals)
-            ax.relim(); ax.autoscale()
-            emit(line=f"f = {fi/1e9:.6f} GHz → R = {R:.4f} V", status=f"Point {(loop_count*len(f)+i+1)} / {(len(f)*loops)}", progress=((loop_count*len(f))+i+1)/(loops*len(f)))
+                line.set_data(fvals,Rvals)
+                ax.relim(); ax.autoscale()
+                emit(line=f"f = {fi/1e9:.6f} GHz → R = {R:.4f} V", status=f"Point {(loop_count*len(f)+i+1)} / {(len(f)*loops)}", progress=((loop_count*len(f))+i+1)/(loops*len(f)))
 
 
-        loop_count=loop_count+1
+            loop_count=loop_count+1
+
+    finally:
+        try: pb_stop(); pb_reset(); pb_close()
+        except: pass
+        try: li.close(); rm.close()
+        except: pass
+        try: mw.close()
+        except: pass
 
     return {"freq_Hz": fvals, "contrast": Rvals}

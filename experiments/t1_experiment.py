@@ -8,7 +8,7 @@ Reads SR830 R per τ and plots live.
 import time
 import numpy as np
 from spinapi import *
-from hardware.sr830_control import init_sr830, sr830_read_R
+from hardware.sr830_control import init_sr830, sr830_read_R, sr830_read_X
 from hardware.pulseblaster_control import pb_init_simple
 from PyQt6.QtCore import Qt, QObject, pyqtSignal, QThread
 
@@ -47,7 +47,7 @@ def run(ax, emit, tref_ms=20, init_us=20.0, second_us=20.0, read_us=20.0, max_ta
     rm, li, tau_LI_s = init_sr830()
     wait_s = max(1, 15* float(tau_LI_s))
 
-    taus_us = np.linspace(10.0, float(max_tau_us), int(points))
+    taus_us = np.linspace(float(init_us), float(max_tau_us), int(points))
     taus_s = taus_us * 1e-6
     Rvals = []
     tauvals=[]
@@ -71,9 +71,9 @@ def run(ax, emit, tref_ms=20, init_us=20.0, second_us=20.0, read_us=20.0, max_ta
 
                 pb_stop()
                 pb_reset()
-                pb_inst_pbonly(CH_REF,CONTINUE, 0, (tref_ms * 1000000.0) / 2.0)
-                pb_inst_pbonly(0,BRANCH,0,(tref_ms * 1000000.0) / 2.0)
-                time.sleep(wait_s)
+                # pb_inst_pbonly(CH_REF,CONTINUE, 0, (tref_ms * 1000000.0) / 2.0)
+                # pb_inst_pbonly(0,BRANCH,0,(tref_ms * 1000000.0) / 2.0)
+                time.sleep(wait_s/1.5)
                 pb_stop()
                 pb_reset()
                 _program_three_pulse_sequence(float(tau), tref_ms, init_us, second_us, read_us)

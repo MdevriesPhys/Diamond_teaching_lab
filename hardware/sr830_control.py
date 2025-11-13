@@ -33,3 +33,7 @@ def sr830_read_R(li):
     """Read lock-in magnitude R (volts)."""
     val = float(li.query("OUTP? 3"))
     return val
+
+def sr830_read_X(li):
+    val=float(li.query("OUTP? 1"))
+    return val
