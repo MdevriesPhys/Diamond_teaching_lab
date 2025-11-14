@@ -55,7 +55,7 @@ def run(ax, emit, tref_ms=20, init_us=20.0, second_us=20.0, read_us=20.0, max_ta
 
     # Plot setup
     ax.set_title("All-optical T₁ (3-pulse)")
-    ax.set_xlabel("τ (s)"); ax.set_ylabel("R (V)"); ax.grid(True)
+    ax.set_xlabel(r"τ ($\mu$s)"); ax.set_ylabel("R (V)"); ax.grid(True)
     (line,) = ax.plot([], [], "o")
     # (errbars,) = ax.errorbars([],[],[],"+")
     loop_counter=0
@@ -73,7 +73,7 @@ def run(ax, emit, tref_ms=20, init_us=20.0, second_us=20.0, read_us=20.0, max_ta
                 pb_reset()
                 # pb_inst_pbonly(CH_REF,CONTINUE, 0, (tref_ms * 1000000.0) / 2.0)
                 # pb_inst_pbonly(0,BRANCH,0,(tref_ms * 1000000.0) / 2.0)
-                time.sleep(wait_s/1.5)
+                time.sleep(wait_s)
                 pb_stop()
                 pb_reset()
                 _program_three_pulse_sequence(float(tau), tref_ms, init_us, second_us, read_us)
