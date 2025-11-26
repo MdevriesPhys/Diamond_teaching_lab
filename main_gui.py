@@ -122,8 +122,6 @@ class ExperimentTab(QWidget):
                 # Handle dict-like results (e.g., {'x': [...], 'y': [...]})
                 x = np.array(self.last_result.get(keys[0], []))
                 y = np.array(self.last_result.get(keys[1], []))
-                print(x)
-                print(y)
             elif isinstance(self.last_result, (list, tuple)) and len(self.last_result) == 2:
                 x, y = map(np.array, self.last_result)
             else:
@@ -230,8 +228,8 @@ class PulsedODMRForm(QWidget):
         self.f_stop  = QDoubleSpinBox(); self.f_stop .setRange(1.0, 4.0); self.f_stop .setValue(2.90); self.f_stop .setSuffix(" GHz")
         self.points  = QSpinBox(); self.points .setRange(1, 2001);   self.points .setValue(61)
         self.dbm = QDoubleSpinBox(); self.dbm.setRange(-50.0,0.0); self.dbm.setValue(-35.0); self.dbm.setSuffix(" dBm")
-        self.tref_us = QDoubleSpinBox(); self.tref_us.setRange(0.2, 1000.0); self.tref_us.setValue(250.0); self.tref_us.setSuffix(" µs")
-        self.pulse_us   = QDoubleSpinBox(); self.pulse_us  .setRange(0.01, 500.0); self.pulse_us.setValue(5); self.pulse_us.setSuffix(" µs")
+        self.tref_us = QDoubleSpinBox(); self.tref_us.setRange(0.2, 1000000.0); self.tref_us.setValue(250.0); self.tref_us.setSuffix(" µs")
+        self.pulse_us   = QDoubleSpinBox(); self.pulse_us  .setRange(0.01, 1000.0); self.pulse_us.setValue(5); self.pulse_us.setSuffix(" µs")
         self.loops= QSpinBox(); self.loops.setRange(1,1000); self.loops.setValue(1)
         for label, w in [("Start f", self.f_start),("Stop f", self.f_stop),("f points", self.points),("MW power", self.dbm),("Tref", self.tref_us),("Laser/MW pulse", self.pulse_us),("Loops",self.loops)]:
             f.addRow(QLabel(label+":"), w)

@@ -15,12 +15,9 @@ CH_REF = (1 << 0)  # TTL to LIA
 CH_LASER   = (1 << 1)  # TTL to laser
 CH_MW_I = (1<<2) #TTL to I channel MW
 
-
 def pulse_creation(tref_us:float, pulse_us:float):
     #need values in ns, not us
     pulse_ns=pulse_us*1000
-
-
     on_selector_dict = {1:CH_LASER,-1:CH_MW_I}
     i=0
     a=1
@@ -69,8 +66,6 @@ def run(ax, emit, f_start_GHz=2.86, f_stop_GHz=2.90,dbm=-35.0, points=61,tref_us
     try:
         pb_stop()
         pb_reset()
-        pulse_creation(float(tref_us),float(pulse_us))
-        pb_start()
 
         loop_count=0
         fvals=[]
@@ -81,7 +76,8 @@ def run(ax, emit, f_start_GHz=2.86, f_stop_GHz=2.90,dbm=-35.0, points=61,tref_us
                 if QThread.currentThread().isInterruptionRequested():
                     emit(line="Interrupted by user.")
                     break
-                
+                pulse_creation(float(tref_us),float(pulse_us))
+                pb_start()
                 mw.set_freq(1,fi)
                 mw.rf_on(1)
                 time.sleep(wait_s)
@@ -93,7 +89,10 @@ def run(ax, emit, f_start_GHz=2.86, f_stop_GHz=2.90,dbm=-35.0, points=61,tref_us
                 line.set_data(fvals,Rvals)
                 ax.relim(); ax.autoscale()
                 emit(line=f"f = {fi/1e9:.6f} GHz → R = {R:.4f} V", status=f"Point {(loop_count*len(f)+i+1)} / {(len(f)*loops)}", progress=((loop_count*len(f))+i+1)/(loops*len(f)))
-
+                
+                pb_stop()
+                pb_reset()
+                time.sleep(wait_s)
 
             loop_count=loop_count+1
 
