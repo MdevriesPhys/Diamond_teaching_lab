@@ -48,14 +48,14 @@ def pulse_creation(tref_us:float, pulse_us:float):
     pb_stop_programming()
 
 
-def run(ax, emit, f_start_GHz=2.86, f_stop_GHz=2.90,dbm=-35.0, points=61,tref_us=250., pulse_us=5, loops=1):
+def run(ax, emit, f_start_MHz=2.86, f_stop_MHz=2.90,dbm=-35.0, points=61,tref_us=250., pulse_us=5, loops=1):
     # Init hardware
     pb_init_simple()
     rm, li, tau_LI_s = init_sr830()
     mw=WindfreakSynth()
     wait_s = max(1, 15 * float(tau_LI_s))
     
-    f = np.linspace(f_start_GHz*1e9, f_stop_GHz*1e9, int(points))
+    f = np.linspace(f_start_MHz*1e6, f_stop_MHz*1e6, int(points))
     C = []
 
     ax.set_title("Pulsed ODMR")
@@ -79,6 +79,7 @@ def run(ax, emit, f_start_GHz=2.86, f_stop_GHz=2.90,dbm=-35.0, points=61,tref_us
                 pulse_creation(float(tref_us),float(pulse_us))
                 pb_start()
                 mw.set_freq(1,fi)
+                mw.set_power(1,dbm)
                 mw.rf_on(1)
                 time.sleep(wait_s)
 
