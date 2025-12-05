@@ -1,6 +1,5 @@
 # experiments/pulsed_odmr.py
-"""Pulsed ODMR scaffold: program PB for init/read + short MW pulse, read signal.
-Plug in your PB + detector calls where noted.
+"""Pulsed ODMR: program PB for init/read + short MW pulse, read signal.
 """
 import time
 import numpy as np
@@ -10,7 +9,7 @@ from hardware.pulseblaster_control import pb_init_simple
 from hardware.windfreak_control import WindfreakSynth
 from PyQt6.QtCore import Qt, QObject, pyqtSignal, QThread
 
-# Channels (edit to match wiring)
+# Channels
 CH_REF = (1 << 0)  # TTL to LIA
 CH_LASER   = (1 << 1)  # TTL to laser
 CH_MW_I = (1<<2) #TTL to I channel MW
@@ -104,4 +103,4 @@ def run(ax, emit, f_start_MHz=2.86, f_stop_MHz=2.90,dbm=-35.0, points=61,tref_us
         try: mw.close()
         except: pass
 
-    return {"freq_Hz": fvals, "contrast": Rvals}
+    return {"freq_Hz": fvals, "R_V": Rvals}
