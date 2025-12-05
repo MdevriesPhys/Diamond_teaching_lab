@@ -56,7 +56,6 @@ def run(ax, emit, f_start_MHz=2.86, f_stop_MHz=2.90,dbm=-35.0, points=61,tref_us
     wait_s = max(1, 15 * float(tau_LI_s))
     
     f = np.linspace(f_start_MHz*1e6, f_stop_MHz*1e6, int(points))
-    f=f[::-1]
     C = []
     ax.set_title("Pulsed ODMR")
     ax.set_xlabel("MW frequency (Hz)")
