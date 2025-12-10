@@ -10,20 +10,20 @@ import numpy as np
 import csv
 
 # Experiment runners (signature: run(ax, emit, **params))
-# try:
-from experiments.t1_experiment import run as run_t1
-from experiments.pulsed_odmr import run as run_podmr
-from experiments.rabi_experiment import run as run_rabi
-from experiments.ramsey_experiment import run as run_ramsey
-from experiments.hahn_experiment import run as run_hahn
+try:
+    from experiments.t1_experiment import run as run_t1
+    from experiments.pulsed_odmr import run as run_podmr
+    from experiments.rabi_experiment import run as run_rabi
+    from experiments.ramsey_experiment import run as run_ramsey
+    from experiments.hahn_experiment import run as run_hahn
 
-# except ImportError:
+except ImportError:
 #     # Dummy fallback functions for now so GUI can run without errors
 #     def run_t1(): return "T1 placeholder (no experiment connected)"
 #     def run_odmr(): return "ODMR placeholder (no experiment connected)"
 #     def run_podmr(): return "Pulsed ODMR placeholder (no experiment connected)"
-#     def run_ramsey(): return "no"
-#     def run_t2(): return "no"
+    def run_rabi(): return "no"
+    def run_hahn(): return "no"
 
 
 class EmitProxy(QObject):
@@ -225,19 +225,20 @@ class PulsedODMRForm(QWidget):
 
 class RabiForm(QWidget):
     def __init__(self):
+        super().__init__()
         f= QFormLayout(self)
         self.mw_freq = QDoubleSpinBox(); self.mw_freq.setRange(1000,4000); self.mw_freq.setValue(2870); self.mw_freq.setSuffix(" MHz")
-        self.dbm = QDoubleSpinBox(); self.dbm.setRange(-40.0,10.0); self.dbm.setValue(-20.0); self.dbm.setSuffix(" dBm")
+        self.dbm = QDoubleSpinBox(); self.dbm.setRange(-40.0,15.0); self.dbm.setValue(-20.0); self.dbm.setSuffix(" dBm")
         self.N = QSpinBox(); self.N.setRange(1,500); self.N.setValue(250)
-        self.max_mw_tau_us = QDoubleSpinBox(); self.max_mw_tau_us.setRange(0.01,10); self.max_mw_tau_us.setValue(5.0); self.max_mw_tau_us(" µs")
-        self.min_pad_tau_us = QDoubleSpinBox(); self.min_pad_tau_us.setRange(0.01,10); self.min_pad_tau_us.setValue(5.0); self.min_pad_tau_us(" µs")
-        self.laser_pulse_us = QDoubleSpinBox(); self.laser_pulse_us.setRange(5,50); self.laser_pulse_us.setValue(10); self.laser_pulse_us(" µs")
+        self.max_mw_tau_us = QDoubleSpinBox(); self.max_mw_tau_us.setRange(0.01,10); self.max_mw_tau_us.setValue(5.0); self.max_mw_tau_us.setSuffix(" µs")
+        self.min_pad_tau_us = QDoubleSpinBox(); self.min_pad_tau_us.setRange(0.01,10); self.min_pad_tau_us.setValue(5.0); self.min_pad_tau_us.setSuffix(" µs")
+        self.laser_pulse_us = QDoubleSpinBox(); self.laser_pulse_us.setRange(5,50); self.laser_pulse_us.setValue(10); self.laser_pulse_us.setSuffix(" µs")
         self.points  = QSpinBox(); self.points .setRange(1, 2001);   self.points .setValue(31)
         self.loops= QSpinBox(); self.loops.setRange(1,1000); self.loops.setValue(3)
-        for label,w in [("MW freq", self.mw_freq), ("MW power", self.dbm), ("N", self.N), ("Max MW τ", self.max_mw_tau_us), ("Min padding τ", self.min_pad_tau_us), ("Laser pulse",self.laser_pulse_us),("Points",self.points),("Loops",self.loops)]:
-            f.addRow(QLabel(label+":"),W)
+        for label,w in [("MW freq", self.mw_freq), ("MW power", self.dbm), ("N", self.N), ("Max MW τ", self.max_mw_tau_us), ("Padding", self.min_pad_tau_us), ("Laser pulse",self.laser_pulse_us),("Points",self.points),("Loops",self.loops)]:
+            f.addRow(QLabel(label+":"), w)
     def get_params(self):
-        return dict(mw_freq_MHz=self.mw_freq.value(), dbm=self.dbm.value(),N=int(self.N.value()),max_mw_tau_us=self.max_mw_tau_us.value(), min_padding_us=self.min_pad_tau_us.value(), las_pulse_us=self.laser_pulse_us.value(), points=int(self.points.value()),loops=int(self.loops.value()))
+        return dict(mw_freq_MHz=self.mw_freq.value(), dBm=self.dbm.value(),N=int(self.N.value()),max_mw_tau_us=self.max_mw_tau_us.value(), min_padding_us=self.min_pad_tau_us.value(), las_pulse_us=self.laser_pulse_us.value(), points=int(self.points.value()),loops=int(self.loops.value()))
 
 class RamseyForm(QWidget):
     def __init__(self):
@@ -275,7 +276,7 @@ class NVGui(QMainWindow):
         tabs = QTabWidget()
         tabs.addTab(ExperimentTab("T1 (3-pulse)", run_t1, T1Form()), "T1")
         tabs.addTab(ExperimentTab("Pulsed ODMR", run_podmr, PulsedODMRForm()), "Pulsed ODMR")
-        tabs.addTab(ExperimentTab("Rabi",run_rabi, RabiForm()), "Rabi")
+        tabs.addTab(ExperimentTab("Rabi", run_rabi, RabiForm()), "Rabi")
         tabs.addTab(ExperimentTab("Ramsey", run_ramsey, RamseyForm()), "Ramsey")
         tabs.addTab(ExperimentTab("Hahn", run_hahn, T2Form()), "Hahn")
 

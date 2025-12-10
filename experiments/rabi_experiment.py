@@ -14,17 +14,18 @@ CH_REF = (1 << 0)  # TTL to LIA
 CH_LASER   = (1 << 1)  # TTL to laser
 CH_MW_I = (1<<2) #TTL to I channel MW
 
-def pulse_creation(tref_us:float, las_pulse_us:float, tau_us:float, padding_us:float. N:int):
+def pulse_creation(las_pulse_us:float, tau_us:float, padding_us:float, N:int):
     #PB needs times in ns, not us
-    las_pulse_us=las_pulse_us*1000
+    las_pulse_ns=las_pulse_us*1000
     tau_ns=tau_us*1000
     padding_ns=padding_us*1000
+
     pb_start_programming(PULSE_PROGRAM)
     i=0
     while i<N:
         pb_inst_pbonly(CH_REF|CH_LASER,CONTINUE,0,las_pulse_ns)
-        pb_inst_pbonly(CH_MW_I, CONTINUE,0, tau_ns)
-        pb_inst_pbonly(0,CONTINUE,0,padding_ns)
+        pb_inst_pbonly(CH_REF|CH_MW_I,CONTINUE,0,tau_ns)
+        pb_inst_pbonly(CH_REF,CONTINUE,0,padding_ns)
         i=i+1
     i=0
     while i<N-1:
@@ -34,7 +35,7 @@ def pulse_creation(tref_us:float, las_pulse_us:float, tau_us:float, padding_us:f
     pb_inst_pbonly(CH_LASER,CONTINUE,0,las_pulse_ns)
     pb_inst_pbonly(0,BRANCH,0,padding_ns+tau_ns)
     pb_stop_programming()
-    return
+    # return
 
 def run(ax, emit, mw_freq_MHz=2870, dBm=-20.0, N=250, max_mw_tau_us=5.0, min_padding_us=5.0, las_pulse_us=10.0, points=31, loops=3):
     #init hardware
@@ -43,7 +44,7 @@ def run(ax, emit, mw_freq_MHz=2870, dBm=-20.0, N=250, max_mw_tau_us=5.0, min_pad
     mw=WindfreakSynth()
     wait_s=max(1,15*float(tau_LI_s))
 
-    tau_space_us = np.linspace(0,max_mw_tau_us, int(points))
+    tau_space_us = np.linspace(0.05,max_mw_tau_us, int(points))
     tref_us = N*(max_mw_tau_us+min_padding_us+las_pulse_us)
 
 
@@ -68,15 +69,16 @@ def run(ax, emit, mw_freq_MHz=2870, dBm=-20.0, N=250, max_mw_tau_us=5.0, min_pad
                     break
 
                 tau_us=ti
-                padding_us=tref_us-las_pulse_us-tau_us    
-                pulse_creation(tref_us,las_pulse_us,tau_us,padding_us,N)
+                # padding_us=(tref_us/N)-las_pulse_us-tau_us    
+                padding_us=min_padding_us
+                pulse_creation(las_pulse_us,tau_us,padding_us,N)
                 pb_start()
 
-                mw.set_freq(1,mw_freq_MHz)
+                mw.set_freq(1,mw_freq_MHz*1e6)
                 mw.set_power(1,dBm)
                 mw.rf_on(1)
 
-                time.sleep(wait)
+                time.sleep(wait_s)
 
                 R=sr830_read_R(li)
                 Rvals.append(R)

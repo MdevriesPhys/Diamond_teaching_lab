@@ -58,7 +58,7 @@ def run(ax, emit, f_start_MHz=2.86, f_stop_MHz=2.90,dbm=-35.0, points=61,tref_us
     C = []
     ax.set_title("Pulsed ODMR")
     ax.set_xlabel("MW frequency (Hz)")
-    ax.set_ylabel("Contrast (arb)")
+    ax.set_ylabel("R (V)")
     ax.grid(True)
     (line,) = ax.plot([], [], "o")
     try:
