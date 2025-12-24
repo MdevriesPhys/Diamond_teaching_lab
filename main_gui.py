@@ -10,20 +10,21 @@ import numpy as np
 import csv
 
 # Experiment runners (signature: run(ax, emit, **params))
-try:
-    from experiments.t1_experiment import run as run_t1
-    from experiments.pulsed_odmr import run as run_podmr
-    from experiments.rabi_experiment import run as run_rabi
-    from experiments.ramsey_experiment import run as run_ramsey
-    from experiments.hahn_experiment import run as run_hahn
+# try:
+from experiments.t1_experiment import run as run_t1
+from experiments.pulsed_odmr import run as run_podmr
+from experiments.rabi_experiment import run as run_rabi
+from experiments.ramsey_experiment import run as run_ramsey
+# from experiments.ramseyXY_experiment import run as run_ramseyXY
+from experiments.hahn_experiment import run as run_hahn
 
-except ImportError:
+# except ImportError:
 #     # Dummy fallback functions for now so GUI can run without errors
 #     def run_t1(): return "T1 placeholder (no experiment connected)"
 #     def run_odmr(): return "ODMR placeholder (no experiment connected)"
 #     def run_podmr(): return "Pulsed ODMR placeholder (no experiment connected)"
-    def run_rabi(): return "no"
-    def run_hahn(): return "no"
+    # def run_rabi(): return "no"
+    # def run_hahn(): return "no"
 
 
 class EmitProxy(QObject):
@@ -252,6 +253,13 @@ class RamseyForm(QWidget):
             f.addRow(QLabel(label+":"), w)
     def get_params(self):
         return dict(tref_ms=self.tref_ms.value(), pi2_us=self.pi2_us.value(), max_tau_us=self.max_tau_us.value(), points=int(self.points.value()))
+
+class RamseyXYForm(QWidget):
+    def __init__(self):
+        super():__init__()
+        #put shit here
+    def get_params(self):
+        return #shit here
 
 class T2Form(QWidget):
     def __init__(self):

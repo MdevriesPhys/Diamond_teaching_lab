@@ -1,32 +1,33 @@
 # experiments/ramsey_experiment.py
-"""Ramsey scaffold: π/2 – τ – π/2 with laser init/read. Plot contrast vs τ.
-Insert PB programming + detector read where marked.
+# experiments/rabi_experiment.py
+"""Rabi measurement
 """
-import numpy as np, time
+import time
+import numpy as np
+from spinapi import *
+from hardware.sr830_control import init_sr830, sr830_read_R
+from hardware.pulseblaster_control import pb_init_simple
+from hardware.windfreak_control import WindfreakSynth
+from PyQt6.QtCore import Qt, QObject, pyqtSignal, QThread
 
-def run(ax, emit, tref_ms=2.0, pi2_us=0.2, max_tau_us=50.0, points=60):
-    taus_us = np.linspace(0.1, float(max_tau_us), int(points))
-    taus_s = taus_us * 1e-6
-    y = []
+# Channels
+CH_REF = (1 << 0)  # TTL to LIA
+CH_LASER   = (1 << 1)  # TTL to laser
+CH_MW_I = (1<<2) #TTL to I channel MW
 
-    ax.set_title("Ramsey (π/2 – τ – π/2)")
-    ax.set_xlabel("τ (s)"); ax.set_ylabel("Contrast (arb)")
-    ax.grid(True)
-    (line,) = ax.plot([], [], "o-")
+def pulse_creation(tref_us:float, tau_mw_us:float, tau_pad_us:float, pulse_us:float):
+    #need values in ns, not us
 
-    f0 = 2.88e9; df = 30e3  # example detuning to show oscillations
+    pb_stop_programming()
 
-    for i, tau in enumerate(taus_us):
-        if QThread.currentThread().isInterruptionRequested():
-            emit(line="Interrupted by user.")
-            break
-        # TODO: PB: laser init → MW π/2 → dark τ → MW π/2 → laser read; read detector
-        time.sleep(0.01)
-        yi = 0.05*np.exp(-taus_s[i]/30e-6) * (0.5*(1+np.cos(2*np.pi*df*taus_s[i])))
-        y.append(yi)
 
-        line.set_data(taus_s[:i+1], y)
-        ax.relim(); ax.autoscale()
-        emit(line=f"τ = {tau:.2f} µs → C = {yi:.4f}", status=f"Point {i+1}/{len(taus_us)}", progress=(i+1)/len(taus_us))
-
-    return {"tau_s": taus_s.tolist(), "contrast": y}
+def run(ax, emit, f_start_MHz=2.86, f_stop_MHz=2.90,dbm=-35.0, points=61,tref_us=250., pulse_us=5, loops=1):
+    # Init hardware
+    pb_init_simple()
+    rm, li, tau_LI_s = init_sr830()
+    mw=WindfreakSynth()
+    wait_s = max(1, 15 * float(tau_LI_s))
+    
+    f = np.linspace(f_start_MHz*1e6, f_stop_MHz*1e6, int(points))
+    C = []
+    ax.set_title("Ramsey")
