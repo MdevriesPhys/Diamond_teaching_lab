@@ -254,12 +254,12 @@ class RamseyForm(QWidget):
     def get_params(self):
         return dict(tref_ms=self.tref_ms.value(), pi2_us=self.pi2_us.value(), max_tau_us=self.max_tau_us.value(), points=int(self.points.value()))
 
-class RamseyXYForm(QWidget):
-    def __init__(self):
-        super():__init__()
-        #put shit here
-    def get_params(self):
-        return #shit here
+# class RamseyXYForm(QWidget):
+#     def __init__(self):
+#         super():__init__()
+#         #put shit here
+#     def get_params(self):
+#         return #shit here
 
 class T2Form(QWidget):
     def __init__(self):

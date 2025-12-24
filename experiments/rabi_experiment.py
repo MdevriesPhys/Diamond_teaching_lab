@@ -62,6 +62,9 @@ def run(ax, emit, mw_freq_MHz=2870, dBm=-20.0, N=250, max_mw_tau_us=5.0, min_pad
         loop_count=0
         tau_vals=[]
         Rvals=[]
+        mw.set_freq(1,mw_freq_MHz*1e6)
+        mw.set_power(1,dBm)
+        mw.rf_on(1)
         while loop_count<loops:
             for i, ti in enumerate(tau_space_us):
                 if QThread.currentThread().isInterruptionRequested():
@@ -73,10 +76,6 @@ def run(ax, emit, mw_freq_MHz=2870, dBm=-20.0, N=250, max_mw_tau_us=5.0, min_pad
                 padding_us=min_padding_us
                 pulse_creation(las_pulse_us,tau_us,padding_us,N)
                 pb_start()
-
-                mw.set_freq(1,mw_freq_MHz*1e6)
-                mw.set_power(1,dBm)
-                mw.rf_on(1)
 
                 time.sleep(wait_s)
 
