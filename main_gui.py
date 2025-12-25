@@ -215,7 +215,7 @@ class PulsedODMRForm(QWidget):
         self.f_start = QDoubleSpinBox(); self.f_start.setRange(1000, 4000); self.f_start.setValue(2860); self.f_start.setSuffix(" MHz")
         self.f_stop  = QDoubleSpinBox(); self.f_stop .setRange(1000, 4000); self.f_stop .setValue(2880); self.f_stop .setSuffix(" MHz")
         self.points  = QSpinBox(); self.points .setRange(1, 2001);   self.points .setValue(31)
-        self.dbm = QDoubleSpinBox(); self.dbm.setRange(-40.0,10.0); self.dbm.setValue(-20.0); self.dbm.setSuffix(" dBm")
+        self.dbm = QDoubleSpinBox(); self.dbm.setRange(-5.0,12.0); self.dbm.setValue(-5.0); self.dbm.setSuffix(" dBm") #IQ range -5<dBm<12
         self.tref_us = QDoubleSpinBox(); self.tref_us.setRange(0.2, 1000000.0); self.tref_us.setValue(5000.0); self.tref_us.setSuffix(" µs")
         self.pulse_us   = QDoubleSpinBox(); self.pulse_us  .setRange(0.01, 1000.0); self.pulse_us.setValue(25); self.pulse_us.setSuffix(" µs")
         self.loops= QSpinBox(); self.loops.setRange(1,1000); self.loops.setValue(3)
@@ -229,7 +229,7 @@ class RabiForm(QWidget):
         super().__init__()
         f= QFormLayout(self)
         self.mw_freq = QDoubleSpinBox(); self.mw_freq.setRange(1000,4000); self.mw_freq.setValue(2870); self.mw_freq.setSuffix(" MHz")
-        self.dbm = QDoubleSpinBox(); self.dbm.setRange(-40.0,15.0); self.dbm.setValue(-20.0); self.dbm.setSuffix(" dBm")
+        self.dbm = QDoubleSpinBox(); self.dbm.setRange(-5.0,12.0); self.dbm.setValue(-5.0); self.dbm.setSuffix(" dBm") #IQ range -5<dBm<12
         self.N = QSpinBox(); self.N.setRange(1,500); self.N.setValue(250)
         self.max_mw_tau_us = QDoubleSpinBox(); self.max_mw_tau_us.setRange(0.01,10); self.max_mw_tau_us.setValue(5.0); self.max_mw_tau_us.setSuffix(" µs")
         self.min_pad_tau_us = QDoubleSpinBox(); self.min_pad_tau_us.setRange(0.01,10); self.min_pad_tau_us.setValue(5.0); self.min_pad_tau_us.setSuffix(" µs")
