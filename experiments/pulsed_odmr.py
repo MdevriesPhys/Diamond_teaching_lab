@@ -61,6 +61,8 @@ def run(ax, emit, f_start_MHz=2.86, f_stop_MHz=2.90,dbm=-35.0, points=61,tref_us
     ax.set_ylabel("R (V)")
     ax.grid(True)
     (line,) = ax.plot([], [], "o")
+    mw_on_flag=False
+    mw.set_power(1,dbm)
     try:
         pb_stop()
         pb_reset()
@@ -75,10 +77,12 @@ def run(ax, emit, f_start_MHz=2.86, f_stop_MHz=2.90,dbm=-35.0, points=61,tref_us
                     emit(line="Interrupted by user.")
                     break
                 pulse_creation(float(tref_us),float(pulse_us))
-                pb_start()
+                
                 mw.set_freq(1,fi)
-                mw.set_power(1,dbm)
-                mw.rf_on(1)
+                time.sleep(1)
+                if mw_on_flag==False:
+                    mw.rf_on(1)
+                pb_start()    
                 time.sleep(wait_s)
 
                 R=sr830_read_R(li)
@@ -88,12 +92,13 @@ def run(ax, emit, f_start_MHz=2.86, f_stop_MHz=2.90,dbm=-35.0, points=61,tref_us
                 line.set_data(fvals,Rvals)
                 ax.relim(); ax.autoscale()
                 emit(line=f"f = {fi/1e9:.6f} GHz → R = {R:.4f} V", status=f"Point {(loop_count*len(f)+i+1)} / {(len(f)*loops)}", progress=((loop_count*len(f))+i+1)/(loops*len(f)))
-                
                 pb_stop()
                 pb_reset()
                 time.sleep(wait_s)
-
+           
             loop_count=loop_count+1
+        mw.rf_off(1)
+        mw_on_flag=False
 
     finally:
         try: pb_stop(); pb_reset(); pb_close()
