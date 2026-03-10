@@ -14,28 +14,58 @@ CH_REF = (1 << 0)  # TTL to LIA
 CH_LASER   = (1 << 1)  # TTL to laser
 CH_MW_I = (1<<2) #TTL to I channel MW
 
-def pulse_creation(las_pulse_us:float, tau_us:float, padding_us:float, N:int):
+def pulse_creation(las_pulse_us:float, tau_us:float, padding_us:float, N:int, tiny_pad:float):
     #PB needs times in ns, not us
     las_pulse_ns=las_pulse_us*1000
     tau_ns=tau_us*1000
     padding_ns=padding_us*1000
-
     pb_start_programming(PULSE_PROGRAM)
     i=0
     while i<N:
         pb_inst_pbonly(CH_REF|CH_LASER,CONTINUE,0,las_pulse_ns)
+        pb_inst_pbonly(CH_REF,CONTINUE,0,tiny_pad)
         pb_inst_pbonly(CH_REF|CH_MW_I,CONTINUE,0,tau_ns)
         pb_inst_pbonly(CH_REF,CONTINUE,0,padding_ns)
         i=i+1
     i=0
     while i<N-1:
         pb_inst_pbonly(CH_LASER,CONTINUE,0,las_pulse_ns)
-        pb_inst_pbonly(0,CONTINUE,0,tau_ns+padding_ns)
+        pb_inst_pbonly(0,CONTINUE,0,tiny_pad+tau_ns+padding_ns)
         i=i+1
     pb_inst_pbonly(CH_LASER,CONTINUE,0,las_pulse_ns)
     pb_inst_pbonly(0,BRANCH,0,padding_ns+tau_ns)
     pb_stop_programming()
     # return
+
+def inverse_pulse_creation(las_pulse_us:float, tau_us:float, padding_us:float, N:int, tiny_pad:float):
+    #PB needs times in ns, not us
+    las_pulse_ns=las_pulse_us*1000
+    tau_ns=tau_us*1000
+    padding_ns=padding_us*1000
+    pb_start_programming(PULSE_PROGRAM)
+    i=0
+    while i<N:
+        pb_inst_pbonly(CH_LASER,CONTINUE,0,las_pulse_ns)
+        pb_inst_pbonly(0,CONTINUE,0,tiny_pad+tau_ns+padding_ns)
+        i=i+1
+    i=0
+    while i<N-1:
+        pb_inst_pbonly(CH_REF|CH_LASER,CONTINUE,0,las_pulse_ns)
+        pb_inst_pbonly(CH_REF,CONTINUE,0,tiny_pad)
+        pb_inst_pbonly(CH_REF|CH_MW_I,CONTINUE,0,tau_ns)
+        pb_inst_pbonly(CH_REF,CONTINUE,0,padding_ns)
+        i=i+1
+    i=0
+    pb_inst_pbonly(CH_REF|CH_LASER,CONTINUE,0,las_pulse_ns)
+    pb_inst_pbonly(CH_REF,CONTINUE,0,tiny_pad)
+    pb_inst_pbonly(CH_REF|CH_MW_I,CONTINUE,0,tau_ns)
+    pb_inst_pbonly(0,BRANCH,0,padding_ns)
+    pb_stop_programming()
+
+def stop_pulse():
+    pb_start_programming(PULSE_PROGRAM)
+    pb_inst_pbonly(0,BRANCH,0,100.0)
+    pb_stop_programming()
 
 def run(ax, emit, mw_freq_MHz=2870, dBm=-20.0, N=250, max_mw_tau_us=5.0, min_padding_us=5.0, las_pulse_us=10.0, points=31, loops=3):
     #init hardware
@@ -43,11 +73,11 @@ def run(ax, emit, mw_freq_MHz=2870, dBm=-20.0, N=250, max_mw_tau_us=5.0, min_pad
     rm, li, tau_LI_s = init_sr830()
     mw=WindfreakSynth()
     wait_s=max(1,15*float(tau_LI_s))
-
+    tiny_pad=50
     tau_space_us = np.linspace(0.05,max_mw_tau_us, int(points))
-    tref_us = N*(max_mw_tau_us+min_padding_us+las_pulse_us)
+    tref_us = N*(max_mw_tau_us+min_padding_us+las_pulse_us+tiny_pad)
 
-
+    # tau_space_us=tau_space_us[::-1]
 
     ax.set_title("Rabi")
     ax.set_xlabel(r"τ ($\mu$s)")
@@ -72,14 +102,16 @@ def run(ax, emit, mw_freq_MHz=2870, dBm=-20.0, N=250, max_mw_tau_us=5.0, min_pad
                     break
 
                 tau_us=ti
-                # padding_us=(tref_us/N)-las_pulse_us-tau_us    
-                padding_us=min_padding_us
-                pulse_creation(las_pulse_us,tau_us,padding_us,N)
+
+                padding_us=las_pulse_us-tau_us
+                # inverse_pulse_creation(las_pulse_us,tau_us,padding_us,N,tiny_pad)
+                pulse_creation(las_pulse_us,tau_us,padding_us,N,tiny_pad)
                 pb_start()
 
                 time.sleep(wait_s)
 
                 R=sr830_read_R(li)
+
                 Rvals.append(R)
                 tau_vals.append(ti)
 
@@ -89,8 +121,11 @@ def run(ax, emit, mw_freq_MHz=2870, dBm=-20.0, N=250, max_mw_tau_us=5.0, min_pad
 
                 pb_stop()
                 pb_reset()
+                stop_pulse()
+                pb_start()
                 time.sleep(wait_s)
-            
+                pb_stop()
+                pb_reset
             loop_count=loop_count+1
 
     finally:

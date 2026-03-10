@@ -41,6 +41,11 @@ def _program_three_pulse_sequence(tau_us: float, tref_ms: float, init_us: float,
     pb_inst_pbonly(0, BRANCH, 0, max(1.0, low_after_read_ns))
     pb_stop_programming()
 
+def stop_pulse():
+    pb_start_programming(PULSE_PROGRAM)
+    pb_inst_pbonly(0,BRANCH,0,100.0)
+    pb_stop_programming()
+
 def run(ax, emit, tref_ms=20, init_us=20.0, second_us=20.0, read_us=20.0, max_tau_us=4000.0, points=15,loops=1):
     # Init hardware
     pb_init_simple()
@@ -71,11 +76,6 @@ def run(ax, emit, tref_ms=20, init_us=20.0, second_us=20.0, read_us=20.0, max_ta
 
                 pb_stop()
                 pb_reset()
-                # pb_inst_pbonly(CH_REF,CONTINUE, 0, (tref_ms * 1000000.0) / 2.0)
-                # pb_inst_pbonly(0,BRANCH,0,(tref_ms * 1000000.0) / 2.0)
-                time.sleep(wait_s)
-                pb_stop()
-                pb_reset()
                 _program_three_pulse_sequence(float(tau), tref_ms, init_us, second_us, read_us)
                 pb_start()
                 # loop_counter=0
@@ -93,7 +93,13 @@ def run(ax, emit, tref_ms=20, init_us=20.0, second_us=20.0, read_us=20.0, max_ta
                 # Rvals.append(np.average(r_av))
                 # Rerrs.append(np.std(r_av))
                 tauvals.append(tau)
-
+                pb_stop()
+                pb_reset()
+                stop_pulse()
+                pb_start()
+                time.sleep(wait_s)
+                pb_stop()
+                pb_reset
                 # Live plot
                 line.set_data(tauvals, Rvals)
                 # errbars.set_data(tauvals, Rvals,Rerrs)

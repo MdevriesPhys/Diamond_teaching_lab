@@ -46,6 +46,10 @@ def pulse_creation(tref_us:float, pulse_us:float):
         pb_inst_pbonly(0,BRANCH,0,pulse_ns)
     pb_stop_programming()
 
+def stop_pulse():
+    pb_start_programming(PULSE_PROGRAM)
+    pb_inst_pbonly(0,BRANCH,0,100.0)
+    pb_stop_programming()
 
 def run(ax, emit, f_start_MHz=2.86, f_stop_MHz=2.90,dbm=-35.0, points=61,tref_us=250., pulse_us=5, loops=1):
     # Init hardware
@@ -92,10 +96,14 @@ def run(ax, emit, f_start_MHz=2.86, f_stop_MHz=2.90,dbm=-35.0, points=61,tref_us
                 line.set_data(fvals,Rvals)
                 ax.relim(); ax.autoscale()
                 emit(line=f"f = {fi/1e9:.6f} GHz → R = {R:.4f} V", status=f"Point {(loop_count*len(f)+i+1)} / {(len(f)*loops)}", progress=((loop_count*len(f))+i+1)/(loops*len(f)))
+
                 pb_stop()
                 pb_reset()
+                stop_pulse()
+                pb_start()
                 time.sleep(wait_s)
-           
+                pb_stop()
+                pb_reset
             loop_count=loop_count+1
         mw.rf_off(1)
         mw_on_flag=False

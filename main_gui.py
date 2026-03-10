@@ -232,7 +232,7 @@ class RabiForm(QWidget):
         self.dbm = QDoubleSpinBox(); self.dbm.setRange(-15.0,12.0); self.dbm.setValue(-5.0); self.dbm.setSuffix(" dBm") #IQ range -5<dBm<12
         self.N = QSpinBox(); self.N.setRange(1,500); self.N.setValue(250)
         self.max_mw_tau_us = QDoubleSpinBox(); self.max_mw_tau_us.setRange(0.01,10); self.max_mw_tau_us.setValue(5.0); self.max_mw_tau_us.setSuffix(" µs")
-        self.min_pad_tau_us = QDoubleSpinBox(); self.min_pad_tau_us.setRange(0.01,10); self.min_pad_tau_us.setValue(5.0); self.min_pad_tau_us.setSuffix(" µs")
+        self.min_pad_tau_us = QDoubleSpinBox(); self.min_pad_tau_us.setRange(0.01,50); self.min_pad_tau_us.setValue(5.0); self.min_pad_tau_us.setSuffix(" µs")
         self.laser_pulse_us = QDoubleSpinBox(); self.laser_pulse_us.setRange(0.1,50); self.laser_pulse_us.setValue(10); self.laser_pulse_us.setSuffix(" µs")
         self.points  = QSpinBox(); self.points .setRange(1, 2001);   self.points .setValue(31)
         self.loops= QSpinBox(); self.loops.setRange(1,1000); self.loops.setValue(3)
