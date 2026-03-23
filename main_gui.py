@@ -246,56 +246,70 @@ class HahnForm(QWidget):
         super().__init__()
         f=QFormLayout(self)
         self.mw_freq = QDoubleSpinBox(); self.mw_freq.setRange(1000,4000); self.mw_freq.setValue(2870); self.mw_freq.setSuffix(" MHz")
-        self.dbm = QDoubleSpinBox(); self.dbm.setRange(-15.0,12.0); self.dbm.setValue(-5.0); self.dbm.setSuffix(" dBm") #IQ range -5<dBm<12
-        self.tref_us = QDoubleSpinBox(); self.tref_us.setRange(0.2, 1000000.0); self.tref_us.setValue(5000.0); self.tref_us.setSuffix(" µs")
-        self.pi_us = QDoubleSpinBox(); self.pi_us.setRange(0.2,5000.0); self.pi_us.setValue(2000.0); self.pi_us.setSuffix(" µs")
-        self.max_tau_us = QDoubleSpinBox(); self.max_tau_us.setRange(0.01,10); self.max_tau_us.setValue(5.0); self.max_tau_us.setSuffix(" µs")
+        self.dbm = QDoubleSpinBox(); self.dbm.setRange(-15.0,12.0); self.dbm.setValue(0.0); self.dbm.setSuffix(" dBm") #IQ range -5<dBm<12
+        self.N = QSpinBox(); self.N.setRange(1,500); self.N.setValue(250)
         self.laser_pulse_us = QDoubleSpinBox(); self.laser_pulse_us.setRange(0.1,50); self.laser_pulse_us.setValue(10); self.laser_pulse_us.setSuffix(" µs")
-        self.pre_wait_us = QDoubleSpinBox(); self.pre_wait_us.setRange(0.1,50); self.pre_wait_us.setValue(10); self.pre_wait_us.setSuffix(" µs")
-        self.post_wait_us = QDoubleSpinBox(); self.post_wait_us.setRange(0.1,50); self.post_wait_us.setValue(10); self.post_wait_us.setSuffix(" µs")
-        self.points  = QSpinBox(); self.points .setRange(1, 2001); self.points .setValue(31)
+        self.pad_ns = QDoubleSpinBox(); self.pad_ns.setRange(50,5000); self.pad_ns.setValue(50); self.pad_ns.setSuffix(" ns")
+        self.pi_ns = QDoubleSpinBox(); self.pi_us.setRange(50,2000); self.pi_us.setValue(800); self.pi_us.setSuffix(" ns")
+        self.max_tau_us = QDoubleSpinBox(); self.max_tau_us.setRange(0.01,200); self.max_tau_us.setValue(50.0); self.max_tau_us.setSuffix(" µs")
+        self.points  = QSpinBox(); self.points .setRange(1, 2001);   self.points .setValue(31)
         self.loops= QSpinBox(); self.loops.setRange(1,1000); self.loops.setValue(3)
         for label, w in [("MW freq", self.mw_freq),
                          ("MW power", self.dbm),
-                         ("Tref", self.tref_us),
-                         ("π pulse", self.pi_us),
-                         ("Max τ", self.max_tau_us),
+                         ("N", self.N),
                          ("Laser pulse", self.laser_pulse_us),
-                         ("Pre-wait pulse", self.pre_wait_us),
-                         ("Post-wait pulse", self.post_wait_us),
+                         ('Padding', self.pad_ns),
+                         ("π pulse", self.pi_ns),
+                         ("Max τ", self.max_tau_us),
                          ("Points", self.points),
                          ("Loops",self.loops)]:
-            f.addRow(QLabel(label+":"), w)
+            f.addRow(QLabel(label+":"),w)
+
     def get_params(self):
-        return dict(f_MHz=self.mw_freq.value(), dbm=self.dbm.value(), tref_us=self.tref_us.value(), pi_us=self.pi_us.value(),max_tau_us=self.max_tau_us.value(),laser_pulse_us=self.laser_pulse_us.value(),pre_wait_us=self.pre_wait_us.value(),post_wait_us=self.post_wait_us.value(), points=int(self.points.value()),loops=int(self.loops.value()))
+        return dict(f_MHz=self.mw_freq.value(),
+                    dbm=self.dbm.value(),
+                    N=int(self.N.value()),
+                    laser_pulse_us = self.laser_pulse_us.value(),
+                    pad_ns=self.pad_ns.value(),
+                    pi_ns=self.pi_ns.value(),
+                    max_tau_us=self.max_tau_us.value(),
+                    points=int(self.points.value()),
+                    loops=int(self.loops.value()))
 
 class RamseyForm(QWidget):
     def __init__(self):
         super().__init__()
-        f = QFormLayout(self)
+        f=QFormLayout(self)
         self.mw_freq = QDoubleSpinBox(); self.mw_freq.setRange(1000,4000); self.mw_freq.setValue(2870); self.mw_freq.setSuffix(" MHz")
-        self.dbm = QDoubleSpinBox(); self.dbm.setRange(-15.0,12.0); self.dbm.setValue(-5.0); self.dbm.setSuffix(" dBm") #IQ range -5<dBm<12
-        self.tref_us = QDoubleSpinBox(); self.tref_us.setRange(0.2, 1000000.0); self.tref_us.setValue(5000.0); self.tref_us.setSuffix(" µs")
-        self.pi2_us = QDoubleSpinBox(); self.pi2_us.setRange(0.2,5000.0); self.pi2_us.setValue(2000.0); self.pi2_us.setSuffix(" µs")
-        self.max_tau_us = QDoubleSpinBox(); self.max_tau_us.setRange(0.01,10); self.max_tau_us.setValue(5.0); self.max_tau_us.setSuffix(" µs")
-        self.laser_init_us = QDoubleSpinBox(); self.laser_init_us.setRange(0.1,50); self.laser_init_us.setValue(10); self.laser_init_us.setSuffix(" µs")
-        self.pre_wait_us = QDoubleSpinBox(); self.pre_wait_us.setRange(0.1,50); self.pre_wait_us.setValue(10); self.pre_wait_us.setSuffix(" µs")
-        self.post_wait_us = QDoubleSpinBox(); self.post_wait_us.setRange(0.1,50); self.post_wait_us.setValue(10); self.post_wait_us.setSuffix(" µs")
-        self.points  = QSpinBox(); self.points .setRange(1, 2001); self.points .setValue(31)
+        self.dbm = QDoubleSpinBox(); self.dbm.setRange(-15.0,12.0); self.dbm.setValue(0.0); self.dbm.setSuffix(" dBm") #IQ range -5<dBm<12
+        self.N = QSpinBox(); self.N.setRange(1,500); self.N.setValue(250)
+        self.laser_pulse_us = QDoubleSpinBox(); self.laser_pulse_us.setRange(0.1,50); self.laser_pulse_us.setValue(10); self.laser_pulse_us.setSuffix(" µs")
+        self.pad_ns = QDoubleSpinBox(); self.pad_ns.setRange(50,5000); self.pad_ns.setValue(50); self.pad_ns.setSuffix(" ns")
+        self.pi_ns = QDoubleSpinBox(); self.pi_us.setRange(50,2000); self.pi_us.setValue(800); self.pi_us.setSuffix(" ns")
+        self.max_tau_us = QDoubleSpinBox(); self.max_tau_us.setRange(0.01,200); self.max_tau_us.setValue(50.0); self.max_tau_us.setSuffix(" µs")
+        self.points  = QSpinBox(); self.points .setRange(1, 2001);   self.points .setValue(31)
         self.loops= QSpinBox(); self.loops.setRange(1,1000); self.loops.setValue(3)
         for label, w in [("MW freq", self.mw_freq),
                          ("MW power", self.dbm),
-                         ("Tref", self.tref_us),
-                         ("π pulse", self.pi2_us),
+                         ("N", self.N),
+                         ("Laser pulse", self.laser_pulse_us),
+                         ('Padding', self.pad_ns),
+                         ("π pulse", self.pi_ns),
                          ("Max τ", self.max_tau_us),
-                         ("Laser pulse", self.laser_init_us),
-                         ("Pre-wait pulse", self.pre_wait_us),
-                         ("Post-wait pulse", self.post_wait_us),
                          ("Points", self.points),
                          ("Loops",self.loops)]:
-            f.addRow(QLabel(label+":"), w)
-def get_params(self):
-        return dict(f_MHz=self.mw_freq.value(), dbm=self.dbm.value(), tref_us=self.tref_us.value(), pi2_us=self.pi2_us.value(),max_tau_us=self.max_tau_us.value(),laser_init_us=self.laser_init_us.value(),pre_wait_us=self.pre_wait_us.value(),post_wait_us=self.post_wait_us.value(), points=int(self.points.value()),loops=int(self.loops.value()))
+            f.addRow(QLabel(label+":"),w)
+
+    def get_params(self):
+        return dict(f_MHz=self.mw_freq.value(),
+                    dbm=self.dbm.value(),
+                    N=int(self.N.value()),
+                    laser_pulse_us = self.laser_pulse_us.value(),
+                    pad_ns=self.pad_ns.value(),
+                    pi_ns=self.pi_ns.value(),
+                    max_tau_us=self.max_tau_us.value(),
+                    points=int(self.points.value()),
+                    loops=int(self.loops.value()))
 
 class NVGui(QMainWindow):
     def __init__(self):
@@ -307,9 +321,9 @@ class NVGui(QMainWindow):
         tabs.addTab(ExperimentTab("T1", run_t1, T1Form()), "T1")
         tabs.addTab(ExperimentTab("Pulsed ODMR", run_podmr, PulsedODMRForm()), "Pulsed ODMR")
         tabs.addTab(ExperimentTab("Rabi", run_rabi, RabiForm()), "Rabi")
-        tabs.addTab(ExperimentTab("Hahn", run_hahn, HahnForm()), "Hahn")
         tabs.addTab(ExperimentTab("Ramsey", run_ramsey, RamseyForm()), "Ramsey")
-        
+        tabs.addTab(ExperimentTab("Hahn", run_hahn, HahnForm()), "Hahn")
+        # tabs.addTab(ExperimentTab("CPMG", run_CPMG, CPMGForm()), "CPMG")
 
         self.last_result = None
         self.setCentralWidget(tabs)

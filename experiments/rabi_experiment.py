@@ -35,7 +35,7 @@ def pulse_creation(las_pulse_us:float, tau_us:float, padding_us:float, N:int, ti
     pb_inst_pbonly(CH_LASER,CONTINUE,0,las_pulse_ns)
     pb_inst_pbonly(0,BRANCH,0,padding_ns+tau_ns)
     pb_stop_programming()
-    # return
+
 
 def inverse_pulse_creation(las_pulse_us:float, tau_us:float, padding_us:float, N:int, tiny_pad:float):
     #PB needs times in ns, not us
@@ -76,8 +76,6 @@ def run(ax, emit, mw_freq_MHz=2870, dBm=-20.0, N=250, max_mw_tau_us=5.0, min_pad
     tiny_pad=50
     tau_space_us = np.linspace(0.05,max_mw_tau_us, int(points))
     tref_us = N*(max_mw_tau_us+min_padding_us+las_pulse_us+tiny_pad)
-
-    # tau_space_us=tau_space_us[::-1]
 
     ax.set_title("Rabi")
     ax.set_xlabel(r"τ ($\mu$s)")
