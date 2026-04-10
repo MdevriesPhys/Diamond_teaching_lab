@@ -59,7 +59,7 @@ def pulse_creation(
         pb_inst_pbonly(CH_LASER, CONTINUE, 0, laser_pulse_ns)
         pb_inst_pbonly(0, CONTINUE, 0, (pad_ns+pi2_ns+tau_ns+pi2_ns+pad_ns))
         i=i+1
-    pb_inst_pbonly(CH_LASER,CONTINUE,0,las_pulse_ns)
+    pb_inst_pbonly(CH_LASER,CONTINUE,0,laser_pulse_ns)
     pb_inst_pbonly(0, BRANCH, 0, (pad_ns+pi2_ns+tau_ns+pi2_ns+pad_ns))
     pb_stop_programming()
 
@@ -69,7 +69,7 @@ def run(ax,
         dbm=-35.0,
         N=250,
         laser_pulse_us=10.0,
-        pad_us=5.0,
+        pad_ns=5.0,
         pi_ns=800.0,
         max_tau_us=50.0,
         points=51,
@@ -112,7 +112,7 @@ def run(ax,
                     break
                 
                 tau_us=ti
-                pulse_creation(laser_pulse_us,pad_us,pi_ns,tau_us,N)
+                pulse_creation(laser_pulse_us,pad_ns,pi_ns,tau_us,N)
                 pb_start()
                 time.sleep(wait_s)
 
@@ -120,7 +120,7 @@ def run(ax,
                 R_vals.append(R)
                 tau_vals.append(ti)
 
-                line.set_data(tau_vals,Rvals)
+                line.set_data(tau_vals,R_vals)
                 ax.relim(); ax.autoscale()
                 emit(line=f"{ti:.6f} us → R = {R:.4f} V", status=f"Point {(loop_count*len(tau_space_us)+i+1)} / {(len(tau_space_us)*loops)}", progress=((loop_count*len(tau_space_us))+i+1)/(loops*len(tau_space_us)))
 
